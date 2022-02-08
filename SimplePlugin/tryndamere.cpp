@@ -40,18 +40,10 @@ namespace tryndamere
     {
         TreeEntry* use_q = nullptr;
         TreeEntry* use_e = nullptr;
-        TreeEntry* e_kill_minions = nullptr;
-    }
-    namespace jungleclear
-    {
-        TreeEntry* use_q = nullptr;
-        TreeEntry* use_e = nullptr;
     }
 
     namespace ultimate
     {
-        TreeEntry* use_q_before = nullptr;
-        TreeEntry* use_q_after = nullptr;
         TreeEntry* auto_r = nullptr;
     }
     namespace killsteal
@@ -80,6 +72,7 @@ namespace tryndamere
     void e_combo_logic();
     void e_flee_logic();
     void r_logic();
+    void killsteal_logic();
 
 
     //Enum define myhero region
@@ -127,23 +120,10 @@ namespace tryndamere
             laneclear::use_e = laneclear->add_checkbox(myhero->get_model() + ".laneclearUseE", "Use E", true);
             laneclear::use_e->set_texture(myhero->get_spell(spellslot::e)->get_icon_texture());
         }
-        auto jungleclear = main_tab->add_tab(myhero->get_model() + ".jungleclear", "jungleclear Settings");
-        {
-            jungleclear::use_q = jungleclear->add_checkbox(myhero->get_model() + ".jungleclearUseQ", "Use Q", true);
-            jungleclear::use_q->set_texture(myhero->get_spell(spellslot::q)->get_icon_texture());
-
-            jungleclear::use_e = jungleclear->add_checkbox(myhero->get_model() + ".jungleclearUseE", "Use E", true);
-            jungleclear::use_e->set_texture(myhero->get_spell(spellslot::e)->get_icon_texture());
-        }
         auto ultimate = main_tab->add_tab(myhero->get_model() + ".ultimate", "ultimate Settings");
         {
             ultimate::auto_r = ultimate->add_checkbox(myhero->get_model() + ".ultimateAutoR", "Auto R", true);
             ultimate::auto_r->set_texture(myhero->get_spell(spellslot::r)->get_icon_texture());
-
-            ultimate::use_q_after = ultimate->add_checkbox(myhero->get_model() + ".useQAfter", "Use Q after R", false);
-            ultimate::use_q_after->set_texture(myhero->get_spell(spellslot::q)->get_icon_texture());
-
-            ultimate::use_q_before = ultimate->add_checkbox(myhero->get_model() + ".useQBefore", "Use Q before R", true);
         }
         auto killsteal = main_tab->add_tab(myhero->get_model()+".killsteal","killsteal Settings");
         {
@@ -243,6 +223,10 @@ namespace tryndamere
             {
                 r_logic();
             }
+            if(killsteal::use_e)
+            {
+                killsteal_logic();
+            }
         }
     }
     void on_draw()
@@ -250,6 +234,16 @@ namespace tryndamere
         if (myhero->is_dead())
         {
             return;
+        }
+        if(draw_settings::draw_range_e->get_bool())
+        {
+            draw_manager->add_circle(myhero->get_position(), q->range(), E_DRAW_COLOR);
+
+        }
+        if (draw_settings::draw_range_w->get_bool())
+        {
+            draw_manager->add_circle(myhero->get_position(), q->range(), W_DRAW_COLOR);
+
         }
     }
     void on_before_attack(game_object_script sender, bool* process)
@@ -332,7 +326,16 @@ namespace tryndamere
         }
     }
 
-    
+    void killsteal_logic()
+    {
+        auto e_target = target_selector->get_target(e->range(), damage_type::physical);
+        auto health_pred = health_prediction->get_health_prediction(e_target,1.f);
+        auto e_dmg = e->get_damage(e_target);
+        if(health_pred<= e_dmg)
+        {
+            e->cast(e_target);
+        }
+    }
 
     void r_logic()
     {
