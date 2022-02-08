@@ -1,4 +1,4 @@
-#include "../plugin_sdk/plugin_sdk.hpp"
+#include "../plugin__sdk/plugin_sdk.hpp"
 #include "tryndamere.h"
 
 namespace tryndamere
