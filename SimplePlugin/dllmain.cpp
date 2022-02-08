@@ -1,4 +1,4 @@
-	#include "../plugin_sdk/plugin_sdk.hpp"
+	#include "../plugin__sdk/plugin_sdk.hpp"
 
 	PLUGIN_NAME("RickSanchez AIO");
 	SUPPORTED_CHAMPIONS(champion_id::Tryndamere);
